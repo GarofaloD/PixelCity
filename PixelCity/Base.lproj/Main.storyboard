@@ -28,7 +28,7 @@
                                 <rect key="frame" x="0.0" y="44" width="414" height="70"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Double-tap to drop a pin and view photos" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6GV-jP-hwo">
-                                        <rect key="frame" x="48.666666666666657" y="24.666666666666671" width="317" height="21"/>
+                                        <rect key="frame" x="48" y="24.666666666666671" width="318" height="21"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="21" id="d5g-Da-WGL"/>
                                         </constraints>
