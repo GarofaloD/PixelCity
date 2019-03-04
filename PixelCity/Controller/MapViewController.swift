@@ -13,15 +13,28 @@ import CoreLocation
 
 class MapViewController: UIViewController, UIGestureRecognizerDelegate {
     
-    //MARK:- Properties
+    
+    //MARK:- Outlets
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var pullUpImageView: UIView!
+    @IBOutlet weak var pullUpImageViewHeightConstraint: NSLayoutConstraint!
+    
+    
+    //MARK:- Properties
     var locationManager = CLLocationManager()
     let authStatus = CLLocationManager.authorizationStatus()
     let regionRadius : Double = 1000 //Radius from the coordinate. In this case, 100sqmts
+    var spinner : UIActivityIndicatorView?
+    var progressLabel : UILabel?
+    var screenSize = UIScreen.main.bounds
     
     
     
-    //MARK:- Outlets
+    
+    
+    
+    
+    
     
     
     
@@ -66,13 +79,73 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
         mapView.addGestureRecognizer(doubleTap)
     }
     
+    //Gesture recognizer to animate the photos view down
+    func addSwipe(){
+        //Creation of the swipe gesture and adding it to the photos view
+        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(MapViewController.animateViewDown))
+        swipe.direction = .down
+        pullUpImageView.addGestureRecognizer(swipe)
+    }
+    
+    
+    
+    // Base function for animating the photos view (UP)
+    func animateViewUp(){
+        pullUpImageViewHeightConstraint.constant = 300
+        //Animate view
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+        }
+        
+    }
+    
+    // Base function for animating the photos view (DOWN)
+    @objc func animateViewDown(){
+        pullUpImageViewHeightConstraint.constant = 0
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    //Spinner to indicate activity
+    func addSpinner(){
+        //Customization of the spinner and adding it specifically to the pullUpView
+        spinner = UIActivityIndicatorView()
+        spinner?.center = CGPoint(x: (screenSize.width / 2) - ((spinner?.frame.width)! / 2), y: 150)
+        spinner?.style = .whiteLarge
+        spinner?.color = #colorLiteral(red: 0.3333333433, green: 0.3333333433, blue: 0.3333333433, alpha: 1)
+        spinner?.startAnimating()
+        pullUpImageView.addSubview(spinner!)
+    }
+    
+    
     
     
     
     
     
 
-}
+    
+    
+    
+    
+    
+    
+    
+    
+
+} //EOC
+
+
+
+
+
+
+
+
+
+
+
 
 //Extension for the delegation of Map Kit
 extension MapViewController: MKMapViewDelegate {
@@ -110,6 +183,12 @@ extension MapViewController: MKMapViewDelegate {
         
         //Pins need to be removed so we dont have duplicates
         removePin()
+        //Animate the image view up when dripping the pin
+        animateViewUp()
+        //Showig spinner on the pullUpView everytime we drop a pin
+        addSpinner()
+        //Animate the image view down when swiping down
+        addSwipe()
         
         //touch point
         let touchPoint = sender.location(in: mapView)
@@ -135,7 +214,7 @@ extension MapViewController: MKMapViewDelegate {
     
     
     
-}
+} //EOC
 
 
 //Extension for the delegation of Location Management
@@ -160,4 +239,4 @@ extension MapViewController : CLLocationManagerDelegate {
     
     
     
-}
+} //EOC
