@@ -224,6 +224,9 @@ extension MapViewController: MKMapViewDelegate {
         //Add progress label
         addProgressLabel()
         
+       
+        
+        
         //touch point
         let touchPoint = sender.location(in: mapView)
         let touchCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
@@ -231,6 +234,11 @@ extension MapViewController: MKMapViewDelegate {
         //Creates the pin(annotation) and adds it to the UI
         let annotation = DroppablePin(coordinate: touchCoordinate, identifier: "droppablePin")
         mapView.addAnnotation(annotation)
+        
+        //TEST
+        print(flickrUrl(forApiKey: FLICKR_API_KEY, withAnnotation: annotation, addNumberOfPhotos: 40))
+        
+        
         
         //Centers the map on the new location of the pin
         let coordinateRegion = MKCoordinateRegion(center: touchCoordinate, latitudinalMeters: regionRadius * 2, longitudinalMeters: regionRadius * 2)

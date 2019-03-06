@@ -14,6 +14,7 @@
 		8C433F1B2228267100C5E3ED /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C433F192228267100C5E3ED /* LaunchScreen.storyboard */; };
 		8C433F2B222829C100C5E3ED /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C433F2A222829C100C5E3ED /* MapViewController.swift */; };
 		8C9D881122300EBA00B45593 /* PhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9D881022300EBA00B45593 /* PhotoCell.swift */; };
+		8C9D88132230147C00B45593 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9D88122230147C00B45593 /* Constants.swift */; };
 		8C9DF1F72229738300998975 /* DroppablePin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9DF1F62229738300998975 /* DroppablePin.swift */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,7 @@
 		8C433F1C2228267100C5E3ED /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8C433F2A222829C100C5E3ED /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		8C9D881022300EBA00B45593 /* PhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCell.swift; sourceTree = "<group>"; };
+		8C9D88122230147C00B45593 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		8C9DF1F62229738300998975 /* DroppablePin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DroppablePin.swift; sourceTree = "<group>"; };
 		9009C92EFB8F041E42BF5649 /* Pods-PixelCity.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PixelCity.release.xcconfig"; path = "Target Support Files/Pods-PixelCity/Pods-PixelCity.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -131,6 +133,7 @@
 		8C433F282228275900C5E3ED /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				8C9D88122230147C00B45593 /* Constants.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -272,6 +275,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C9D88132230147C00B45593 /* Constants.swift in Sources */,
 				8C9D881122300EBA00B45593 /* PhotoCell.swift in Sources */,
 				8C433F112228267000C5E3ED /* AppDelegate.swift in Sources */,
 				8C9DF1F72229738300998975 /* DroppablePin.swift in Sources */,
