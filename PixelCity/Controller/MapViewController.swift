@@ -9,6 +9,8 @@
 import UIKit
 import MapKit
 import CoreLocation
+import Alamofire
+import AlamofireImage
 
 
 class MapViewController: UIViewController, UIGestureRecognizerDelegate {
@@ -29,15 +31,7 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
     var screenSize = UIScreen.main.bounds
     var collectionView : UICollectionView?
     var flowLayout = UICollectionViewLayout() //To create a collection view programatoccaly, you need to add a layout
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    var imageUrlArray = [String]()
     
 
     override func viewDidLoad() {
@@ -58,16 +52,10 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
         collectionView?.dataSource = self
         collectionView?.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
         
-        
-        
         pullUpImageView.addSubview(collectionView!)
-        
-        
         
     }
     
-
-
     //MARK:- Buttons
     @IBAction func centerWhenPressed(_ sender: UIButton) {
         //Checking on status of auth and recentering
@@ -77,10 +65,7 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
         
     }
     
-    
-    
-    
-    
+
     //MARK:- Custom functions
     
     //Double tap to set up custom location AND drop pin
@@ -158,14 +143,6 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
 
-    
-    
-    
-    
-    
-    
-    
-    
 
 } //EOC
 
@@ -224,9 +201,7 @@ extension MapViewController: MKMapViewDelegate {
         //Add progress label
         addProgressLabel()
         
-       
-        
-        
+
         //touch point
         let touchPoint = sender.location(in: mapView)
         let touchCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
@@ -243,8 +218,13 @@ extension MapViewController: MKMapViewDelegate {
         //Centers the map on the new location of the pin
         let coordinateRegion = MKCoordinateRegion(center: touchCoordinate, latitudinalMeters: regionRadius * 2, longitudinalMeters: regionRadius * 2)
         mapView.setRegion(coordinateRegion, animated: true)
+        
+        retrieveUrls(forAnnotation: annotation) { (true) in
+            print(self.imageUrlArray)
+        }
+        
+        
     }
-    
     
     
     //Removes the pin for the array of pins
@@ -253,6 +233,58 @@ extension MapViewController: MKMapViewDelegate {
             mapView.removeAnnotation(annotation)
         }
     }
+    
+    //Retrieving urls for individual pics
+    func retrieveUrls(forAnnotation annotation: DroppablePin, handler: @escaping (_ status: Bool) -> ()) {
+        
+        imageUrlArray = []
+        Alamofire.request(flickrUrl(forApiKey: FLICKR_API_KEY, withAnnotation: annotation, addNumberOfPhotos: 40)).responseJSON { (response) in
+            
+            print(response)
+            handler(true)
+            
+            guard let json = response.result.value as? Dictionary<String,AnyObject> else { return }
+            let photosDict = json["photos"] as? Dictionary<String, AnyObject>
+            let photosDictArray = photosDict?["photo"] as! [Dictionary<String,AnyObject>]
+            
+            for photo in photosDictArray {
+                let postUrl = "https://farm\(photo["farm"]!).staticflickr.com/\(photo["server"]!)/\(photo["id"]!)_\(photo["secret"]!)_h_d.jpg"
+                self.imageUrlArray.append(postUrl)
+            }
+            handler(true)
+            
+            
+        }
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     

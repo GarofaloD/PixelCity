@@ -16,8 +16,8 @@ let BASEURL = "https://api.flickr.com/"
 
 //MARK:- Functions
 func flickrUrl(forApiKey key: String, withAnnotation annotation: DroppablePin, addNumberOfPhotos number : Int) -> String{
-    let url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(FLICKR_API_KEY)&lat=\(annotation.coordinate.latitude)&lon=\(annotation.coordinate.latitude)&radius=1&radius_units=mi&per_page=\(number)&format=json&nojsoncallback=1"
-    print(url)
+    let url = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(FLICKR_API_KEY)&lat=\(annotation.coordinate.latitude)&lon=\(annotation.coordinate.longitude)&radius=1&radius_units=mi&per_page=\(number)&format=json&nojsoncallback=1"
+    //print(url)
     return url
 }
 
