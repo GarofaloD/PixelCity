@@ -30,7 +30,7 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
     var progressLabel : UILabel?
     var screenSize = UIScreen.main.bounds
     var collectionView : UICollectionView?
-    var flowLayout = UICollectionViewLayout() //To create a collection view programatoccaly, you need to add a layout
+    var flowLayout = UICollectionViewFlowLayout() //To create a collection view programaticcaly, you need to add a layout
     var imageUrlArray = [String]()
     var imageArray = [UIImage]()
     
@@ -48,10 +48,10 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
         addDoubleTap()
         //Instance of collectionView
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: flowLayout)
-        collectionView?.register(PhotoCell.self, forCellWithReuseIdentifier: "reusableCell")
+        collectionView?.register(PhotoCell.self, forCellWithReuseIdentifier: "photoCell")
         collectionView?.delegate = self
         collectionView?.dataSource = self
-        collectionView?.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+        collectionView?.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 0.4240557899)
         
         pullUpImageView.addSubview(collectionView!)
         
@@ -196,6 +196,13 @@ extension MapViewController: MKMapViewDelegate {
         //Remove existing sessions before adding a new pin
         cancelAllSessions()
         //Animate the image view up when dropping the pin
+        
+        //This will: clear the images from the collection view, from the list of urls and reload the collection view
+        imageUrlArray = []
+        imageArray = []
+        collectionView?.reloadData()
+        
+        //shows the collectionview that will display the images once downloaded
         animateViewUp()
         //Showing spinner on the pullUpView everytime we drop a pin
         addSpinner()
@@ -203,8 +210,7 @@ extension MapViewController: MKMapViewDelegate {
         addSwipe()
         //Add progress label
         addProgressLabel()
-        
-
+    
         //touch point
         let touchPoint = sender.location(in: mapView)
         let touchCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
@@ -215,8 +221,6 @@ extension MapViewController: MKMapViewDelegate {
         
         //TEST
         //print(flickrUrl(forApiKey: FLICKR_API_KEY, withAnnotation: annotation, addNumberOfPhotos: 40))
-        
-        
         
         //Centers the map on the new location of the pin
         let coordinateRegion = MKCoordinateRegion(center: touchCoordinate, latitudinalMeters: regionRadius * 2, longitudinalMeters: regionRadius * 2)
@@ -231,13 +235,12 @@ extension MapViewController: MKMapViewDelegate {
                         //hide label
                         self.removeProgressLabel()
                         //reload collectionview
+                        self.collectionView?.reloadData()
                         
                     }
                 })
             }
         }
-        
-        
     }
     
     
@@ -251,9 +254,7 @@ extension MapViewController: MKMapViewDelegate {
     //Retrieving urls for individual pics
     func retrieveUrls(forAnnotation annotation: DroppablePin, handler: @escaping (_ status: Bool) -> ()) {
         
-        imageUrlArray = []
         Alamofire.request(flickrUrl(forApiKey: FLICKR_API_KEY, withAnnotation: annotation, addNumberOfPhotos: 40)).responseJSON { (response) in
-            
             //print(response)
             handler(true)
             
@@ -271,11 +272,9 @@ extension MapViewController: MKMapViewDelegate {
     
     //Saving the images to be displayed
     func retrieveImages(handler: @escaping (_ status: Bool) -> ()){
-        //Images need to be saved opn this array
-        imageArray = []
         //for each url saved on the array of the images url
         for url in imageUrlArray{
-            Alamofire.request(url).responseImage { (response) in
+            Alamofire.request(url).responseImage(completionHandler: { (response) in
                 //get the image and save the image on the array of images
                 guard let image = response.result.value else {return}
                 self.imageArray.append(image)
@@ -284,8 +283,9 @@ extension MapViewController: MKMapViewDelegate {
                 //Then, compare the amount of urls with the amount of images downloadded.If they are the same the process is over
                 if self.imageArray.count == self.imageUrlArray.count {
                     handler(true)
+                    print(self.imageArray)
                 }
-            }
+            })
         }
     }
     
@@ -296,36 +296,9 @@ extension MapViewController: MKMapViewDelegate {
             //Cancel all the network functions by grabing each value into theur array and deleting them
             sessionDataTask.forEach({ $0.cancel() })
             downloadData.forEach({ $0.cancel() })
-            
-            
-            
-            
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
 } //EOC
 
 
@@ -360,15 +333,16 @@ extension MapViewController : UICollectionViewDelegate, UICollectionViewDataSour
     
     //Number of items
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 4
+        return imageArray.count
     }
     
     //Content of items
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-       let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCell
-        
-        
-        return cell!
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCell else { return UICollectionViewCell() }
+        let imageFromIndex = imageArray[indexPath.row]
+        let imageView = UIImageView(image: imageFromIndex)
+        cell.addSubview(imageView)
+        return cell
     }
     
     
