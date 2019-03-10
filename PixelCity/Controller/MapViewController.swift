@@ -32,6 +32,7 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
     var collectionView : UICollectionView?
     var flowLayout = UICollectionViewLayout() //To create a collection view programatoccaly, you need to add a layout
     var imageUrlArray = [String]()
+    var imageArray = [UIImage]()
     
 
     override func viewDidLoad() {
@@ -99,6 +100,8 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
     
     // Base function for animating the photos view (DOWN)
     @objc func animateViewDown(){
+        //each time the user manually swipes down, the netwok sessions will be cancelled and the frame that hold s the collection view will be hidden
+        cancelAllSessions()
         pullUpImageViewHeightConstraint.constant = 0
         UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
@@ -127,11 +130,11 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
     //Add progress label
     func addProgressLabel(){
         progressLabel = UILabel()
-        progressLabel?.frame = CGRect(x: (screenSize.width / 2) - 100, y: 150, width: 200, height: 20)
-        progressLabel?.font = UIFont(name: "Avenir Next", size: 18)
+        progressLabel?.frame = CGRect(x: (screenSize.width / 2) - 150, y: 150, width: 300, height: 20)
+        progressLabel?.font = UIFont(name: "Avenir Next", size: 14)
         progressLabel?.textColor = #colorLiteral(red: 0.3333333433, green: 0.3333333433, blue: 0.3333333433, alpha: 1)
         progressLabel?.textAlignment = .center
-        progressLabel?.text = "Loading xx/xx photos"
+        progressLabel?.text = "LOADING..."
         collectionView?.addSubview(progressLabel!)
     }
     
@@ -142,8 +145,6 @@ class MapViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-
-
 } //EOC
 
 
@@ -192,6 +193,8 @@ extension MapViewController: MKMapViewDelegate {
         removeSpinner()
         //Remove any previous progresslabels everytime a new pin is dropped
         removeProgressLabel()
+        //Remove existing sessions before adding a new pin
+        cancelAllSessions()
         //Animate the image view up when dropping the pin
         animateViewUp()
         //Showing spinner on the pullUpView everytime we drop a pin
@@ -211,7 +214,7 @@ extension MapViewController: MKMapViewDelegate {
         mapView.addAnnotation(annotation)
         
         //TEST
-        print(flickrUrl(forApiKey: FLICKR_API_KEY, withAnnotation: annotation, addNumberOfPhotos: 40))
+        //print(flickrUrl(forApiKey: FLICKR_API_KEY, withAnnotation: annotation, addNumberOfPhotos: 40))
         
         
         
@@ -219,8 +222,19 @@ extension MapViewController: MKMapViewDelegate {
         let coordinateRegion = MKCoordinateRegion(center: touchCoordinate, latitudinalMeters: regionRadius * 2, longitudinalMeters: regionRadius * 2)
         mapView.setRegion(coordinateRegion, animated: true)
         
-        retrieveUrls(forAnnotation: annotation) { (true) in
-            print(self.imageUrlArray)
+        retrieveUrls(forAnnotation: annotation) { (finished) in
+            if finished {
+                self.retrieveImages(handler: { (finished) in
+                    if finished {
+                        //hide spinner
+                        self.removeSpinner()
+                        //hide label
+                        self.removeProgressLabel()
+                        //reload collectionview
+                        
+                    }
+                })
+            }
         }
         
         
@@ -240,7 +254,7 @@ extension MapViewController: MKMapViewDelegate {
         imageUrlArray = []
         Alamofire.request(flickrUrl(forApiKey: FLICKR_API_KEY, withAnnotation: annotation, addNumberOfPhotos: 40)).responseJSON { (response) in
             
-            print(response)
+            //print(response)
             handler(true)
             
             guard let json = response.result.value as? Dictionary<String,AnyObject> else { return }
@@ -252,18 +266,42 @@ extension MapViewController: MKMapViewDelegate {
                 self.imageUrlArray.append(postUrl)
             }
             handler(true)
+        }
+    }
+    
+    //Saving the images to be displayed
+    func retrieveImages(handler: @escaping (_ status: Bool) -> ()){
+        //Images need to be saved opn this array
+        imageArray = []
+        //for each url saved on the array of the images url
+        for url in imageUrlArray{
+            Alamofire.request(url).responseImage { (response) in
+                //get the image and save the image on the array of images
+                guard let image = response.result.value else {return}
+                self.imageArray.append(image)
+                self.progressLabel!.text = "\(self.imageArray.count)/40 IMAGES DOWNLOADED"
+                
+                //Then, compare the amount of urls with the amount of images downloadded.If they are the same the process is over
+                if self.imageArray.count == self.imageUrlArray.count {
+                    handler(true)
+                }
+            }
+        }
+    }
+    
+    //Cancel all network sessions
+    func cancelAllSessions(){
+        //get the network functions
+        Alamofire.SessionManager.default.session.getTasksWithCompletionHandler { (sessionDataTask, uploadData, downloadData) in
+            //Cancel all the network functions by grabing each value into theur array and deleting them
+            sessionDataTask.forEach({ $0.cancel() })
+            downloadData.forEach({ $0.cancel() })
+            
+            
             
             
         }
-        
-        
-        
     }
-    
-    
-    
-    
-    
     
     
     
